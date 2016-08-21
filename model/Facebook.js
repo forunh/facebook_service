@@ -11,3 +11,10 @@
 //     pageID: TEXT,
 //     name: TEXT
 // }
+
+// Model : fbComment
+// {
+//     postID : TEXT,
+//     created_time,
+
+// } 

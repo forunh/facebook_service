@@ -1,56 +1,46 @@
 "use strict";
 import express from 'express'
 import * as FacebookService from '../service/FacebookService'
-import { Facebook } from '../model/Facebook'
-
 
 let facebookRouter = express.Router()
 
 
 
 facebookRouter.route('/').get((req, res) => {
-  res.send('<h1>Facebook Api</h1><ul><li>/getDetail</li><li>/getFeed</li></ul>')
+  res.send('<h1>Facebook Api</h1><ul><li>/addPage?pageID={pageID}</li><li>/getAllPage</li><li>/deletePage</li><li>/updateDB</li><li>/getFeed</li></ul>')
 })
 
 facebookRouter.route('/addPage').get((req, res) => {
 
     FacebookService.addPage(req.query.pageID)
-    res.send("done")
+    res.send("Add Page"+req.query.pageID)
    
 })
 
-facebookRouter.route('/getUserID').get((req, res) => {
 
-   var detail = []
-   var detailstr = ""
-   Facebook.findAll({
-        attributes: ['userID'],
-        group: ['userID']
-        
-    }).then( (feeds) =>{
-        for(var feed of feeds){
-            detail.push(feed.dataValues.userID)
-            detailstr += "<br>-"+feed.dataValues.userID
-        }
-    }).then(() => {
-        res.send(detailstr)
+facebookRouter.route('/getAllPage').get((req, res) => {
+    FacebookService.getAllPage().then((page) =>{
+        res.send(page)
     })
-   
+    
 })
 
-facebookRouter.route('/getMessage').get((req, res) => {
+facebookRouter.route('/deletePage').get((req, res) => {
+    FacebookService.deletePage(req.query.pageID)
+    res.send("Delete Page"+req.query.pageID)
+    
+    
+})
+
+facebookRouter.route('/getFeed').get((req, res) => {
   
   var messages = []
   var messagestr = ""
-    Facebook.findAll({
-        attributes: ['message'],
-        where: {
-        userID: req.query.userID
-        }
-    }).then( (feeds) =>{
+     FacebookService.getFeed(req.query.pageID)
+     .then( (feeds) =>{
         for(var feed of feeds){
-            messages.push(feed.dataValues.message)
-            messagestr += "<br>-"+feed.dataValues.message
+            messages.push(feed.message)
+            messagestr += "<br>-"+feed.message
         }
     }).then(() => {
         res.send(messagestr)
@@ -65,11 +55,16 @@ facebookRouter.route('/updateDB').get((req, res) => {
     
 })
 
-facebookRouter.route('/getPageID').get((req, res) => {
-    FacebookService.getPageID().then((pageID) =>{
-        res.send(pageID)
-    })
+facebookRouter.route('/addComment').get((req, res) => {
+    FacebookService.addComment()
+    res.send("done")
     
+})
+
+facebookRouter.route('/getAllComment').get((req, res) => {
+    FacebookService.getAllComment().then((page) =>{
+        res.send(page)
+    })
     
 })
 

@@ -4,7 +4,7 @@ import cron from 'cron'
 
 let access_token = "139610759813141|f928e2e59299981a997116c967a20b1d"
 graph.setAccessToken(access_token);
-let cronJob = cron.cronJob
+let cronJob = cron.CronJob
 
 
 export function getFbDetail(userID) {
@@ -46,79 +46,122 @@ export function getFbFeed(userID,since,until) {
 
 export function updateDB(since,until){
     
+    let saveFbJob = new cronJob('* */30 * * * *', () => {
+        getAllPage().then((allPage) =>{
 
-    getPageID().then((pageID) =>{
+            for(var page of allPage){
+                getFbFeed(page.pageID,since,until)
+                .then( feed => {
 
-        for(var userID of pageID){
-            getFeed(userID,since,until)
-            .then( result => {
-
-                for(var data of result.data){
-                    if(data.message){
-                        Facebook.findOrCreate({
-                            where:{
-                                postID: data.id
-                            },
-                            defaults:{
+                    for(var data of feed.data){
+                        if(data.message){
+                            let post = {
                                 userID: data.id.substring(0,data.id.indexOf("_")),
                                 postID: data.id,
                                 message: data.message,
                                 postCreatedTime: data.created_time
                             }
-                        })
-                        .then(() => {
-                            console.log('save complete');
-                        })
-                        .catch((err) => {
-                            console.log(err.stack);
-                        })
+                            db.facebookFeed.update({postID: data.id},post,{upsert:true},err => {
+                                if(err){
+                                    console.log(err)
+                                }
+                            })
+                            
+                        }
                     }
-                }
-            })
-        }
-
-    })
-    
-    
-}
-export function getPageID(){
-    
-    var userID =[]
-    return new Promise((resolve,reject) => {
-        PageID.findAll({
-            attributes: ['userID'],
-            group: ['userID']
-            
-        }).then( (feeds) =>{
-            for(var feed of feeds){
-                userID.push(feed.dataValues.userID)
+                })
             }
-        }).then(() => {
-            resolve(userID)
+
+        })
+    },
+    () => {
+        console.log('saveTweetJob has stopped')
+    },
+        true
+    )
+}
+export function getAllPage(){
+    
+    return new Promise((resolve,reject) => {
+        db.fbPage.find((err,docs)=>{
+            if(err){
+                reject(reject)
+            }
+            else{
+                resolve(docs)
+            }
+        })
+    })
+}
+
+export function getAllComment(){
+    
+    return new Promise((resolve,reject) => {
+        db.fbComment.find((err,docs)=>{
+            if(err){
+                reject(reject)
+            }
+            else{
+                resolve(docs)
+            }
         })
     })
 }
 
 export function addPage(pageID){
-    
-    
-    getDetail(pageID)
+
+    getFbDetail(pageID)
     .then( result => {
+        let page ={
+            pageID: result.id,
+            name: result.name
+        } 
         
-        PageID.findOrCreate({
-            where:{
-                userID: result.id
-            },
-            defaults:{
-                userID: result.id,
-                name: result.name
+
+        db.fbPage.update({pageID: pageID},page,{upsert:true},err => {
+            if(err){
+                console.log(err)
             }
         })
-        .then(() => {
-            console.log('add complete');
-        })
-        .catch((err) => {
-            console.log(err.stack);
-        })
+              
     })  
+}
+
+export function deletePage(pageID){
+    db.fbPage.remove(
+        {   pageID: pageID  },
+        {
+            justOne: false
+        }
+    )
+}
+
+export function getFeed(userID){
+    
+    return new Promise((resolve,reject) => {
+        db.facebookFeed.find((err,docs)=>{
+            if(err){
+                reject(reject)
+            }
+            else{
+                resolve(docs)
+            }
+        })
+    })
+}
+
+export function addComment(){
+    console.log("hi")
+    getFbComment("1749829098634111_1801452856805068")
+    .then( comment => {
+        console.log(comment)
+        db.fbComment.update({postID: "123"},
+                            {postID: "123",comment: "abc"},
+                            {upsert:true},
+                            err => {
+            if(err){
+                console.log(err)
+            }
+        })
+    })
 }
