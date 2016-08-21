@@ -21,6 +21,7 @@ export function getFbComment(postID){
 
     return new Promise((resolve) => {
         graph.get(postID+"/comments",(err,res) => {
+            console.log(comment)
             resolve(res)
         })
     })
@@ -44,42 +45,42 @@ export function getFbFeed(userID,since,until) {
      
 }
 
-export function updateDB(since,until){
-    
-    let saveFbJob = new cronJob('* */30 * * * *', () => {
-        getAllPage().then((allPage) =>{
 
-            for(var page of allPage){
-                getFbFeed(page.pageID,since,until)
-                .then( feed => {
 
-                    for(var data of feed.data){
-                        if(data.message){
-                            let post = {
-                                userID: data.id.substring(0,data.id.indexOf("_")),
-                                postID: data.id,
-                                message: data.message,
-                                postCreatedTime: data.created_time
-                            }
-                            db.facebookFeed.update({postID: data.id},post,{upsert:true},err => {
-                                if(err){
-                                    console.log(err)
-                                }
-                            })
-                            
+let saveFbJob = new cronJob('* */30 * * * *', () => {
+    getAllPage().then((allPage) =>{
+
+        for(var page of allPage){
+            getFbFeed(page.pageID,since,until)
+            .then( feed => {
+
+                for(var data of feed.data){
+                    if(data.message){
+                        let post = {
+                            userID: data.id.substring(0,data.id.indexOf("_")),
+                            postID: data.id,
+                            message: data.message,
+                            postCreatedTime: data.created_time
                         }
+                        db.facebookFeed.update({postID: data.id},post,{upsert:true},err => {
+                            if(err){
+                                console.log(err)
+                            }
+                        })
+                        
                     }
-                })
-            }
+                }
+            })
+        }
 
-        })
-    },
-    () => {
-        console.log('saveTweetJob has stopped')
-    },
-        true
-    )
-}
+    })
+},
+() => {
+    console.log('saveFbJob has stopped')
+},
+    true
+)
+
 export function getAllPage(){
     
     return new Promise((resolve,reject) => {
@@ -151,12 +152,12 @@ export function getFeed(userID){
 }
 
 export function addComment(){
-    console.log("hi")
+
     getFbComment("1749829098634111_1801452856805068")
     .then( comment => {
         console.log(comment)
         db.fbComment.update({postID: "123"},
-                            {postID: "123",comment: "abc"},
+                            {postID: "123",comment: comment.data[0]},
                             {upsert:true},
                             err => {
             if(err){

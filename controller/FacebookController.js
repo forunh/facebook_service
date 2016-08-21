@@ -34,26 +34,19 @@ facebookRouter.route('/deletePage').get((req, res) => {
 
 facebookRouter.route('/getFeed').get((req, res) => {
   
-  var messages = []
-  var messagestr = ""
      FacebookService.getFeed(req.query.pageID)
      .then( (feeds) =>{
-        for(var feed of feeds){
-            messages.push(feed.message)
-            messagestr += "<br>-"+feed.message
-        }
-    }).then(() => {
-        res.send(messagestr)
+        res.send(feeds)
     })
 
    
 })
 
-facebookRouter.route('/updateDB').get((req, res) => {
-    FacebookService.updateDB(req.query.since,req.query.until)
-    res.send("done")
+// facebookRouter.route('/updateDB').get((req, res) => {
+//     FacebookService.updateDB(req.query.since,req.query.until)
+//     res.send("done")
     
-})
+// })
 
 facebookRouter.route('/addComment').get((req, res) => {
     FacebookService.addComment()
