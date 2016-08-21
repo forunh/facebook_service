@@ -1,0 +1,16 @@
+{
+    "remotePath": "/root/nodejs/facebook_service",
+    "host": "localhost",
+    "username": "root",
+    "password": "CEkmitl702*1234",
+    "port": 2000,
+    "protocol": "sftp",
+    "uploadOnSave": true,
+    "passive": false,
+    "debug": false,
+    "privateKeyPath": null,
+    "ignore": [
+        "\\.vscode",
+        "\\.git"
+    ]
+}

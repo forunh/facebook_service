@@ -1,67 +1,36 @@
 import graph from 'fbgraph'
-import { Facebook, PageID } from '../model/Facebook'
+import { db } from '../db'
+import cron from 'cron'
 
-
-var access_token = "139610759813141|f928e2e59299981a997116c967a20b1d"
+let access_token = "139610759813141|f928e2e59299981a997116c967a20b1d"
 graph.setAccessToken(access_token);
+let cronJob = cron.cronJob
 
 
-export function getDetail(userID) {
+export function getFbDetail(userID) {
 
     return new Promise((resolve) =>{
         graph.get(userID, (err, res) => {
-            resolve(res);
+            resolve(res)
         })
     })
-
      
 }
 
-export function addPage(pageID){
-    
-    
-    getDetail(pageID)
-    .then( result => {
-        
-        PageID.findOrCreate({
-            where:{
-                userID: result.id
-            },
-            defaults:{
-                userID: result.id,
-                name: result.name
-            }
-        })
-        .then(() => {
-            console.log('add complete');
-        })
-        .catch((err) => {
-            console.log(err.stack);
-        })
-    })  
-}
+export function getFbComment(postID){
 
-
-export function getPageID(){
-    
-    var userID =[]
-    return new Promise((resolve,reject) => {
-        PageID.findAll({
-            attributes: ['userID'],
-            group: ['userID']
-            
-        }).then( (feeds) =>{
-            for(var feed of feeds){
-                userID.push(feed.dataValues.userID)
-            }
-        }).then(() => {
-            resolve(userID)
+    return new Promise((resolve) => {
+        graph.get(postID+"/comments",(err,res) => {
+            resolve(res)
         })
     })
+
 }
 
 
-export function getFeed(userID,since,until) {
+
+
+export function getFbFeed(userID,since,until) {
 
     var params = {fields: "",since: since,until: until}
     
@@ -111,4 +80,45 @@ export function updateDB(since,until){
     })
     
     
+}
+export function getPageID(){
+    
+    var userID =[]
+    return new Promise((resolve,reject) => {
+        PageID.findAll({
+            attributes: ['userID'],
+            group: ['userID']
+            
+        }).then( (feeds) =>{
+            for(var feed of feeds){
+                userID.push(feed.dataValues.userID)
+            }
+        }).then(() => {
+            resolve(userID)
+        })
+    })
+}
+
+export function addPage(pageID){
+    
+    
+    getDetail(pageID)
+    .then( result => {
+        
+        PageID.findOrCreate({
+            where:{
+                userID: result.id
+            },
+            defaults:{
+                userID: result.id,
+                name: result.name
+            }
+        })
+        .then(() => {
+            console.log('add complete');
+        })
+        .catch((err) => {
+            console.log(err.stack);
+        })
+    })  
 }
