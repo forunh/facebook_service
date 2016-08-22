@@ -13,13 +13,26 @@ facebookRouter.route('/').get((req, res) => {
 facebookRouter.route('/addPage').get((req, res) => {
 
     FacebookService.addPage(req.query.pageID)
-    res.send("Add Page"+req.query.pageID)
+    res.send("Add Page "+req.query.pageID)
    
 })
 
+facebookRouter.route('/addPost').get((req, res) => {
+
+    FacebookService.addPost(req.query.postID)
+    res.send("Add Page "+req.query.postID)
+   
+})
 
 facebookRouter.route('/getAllPage').get((req, res) => {
     FacebookService.getAllPage().then((page) =>{
+        res.send(page)
+    })
+    
+})
+
+facebookRouter.route('/getAllPost').get((req, res) => {
+    FacebookService.getAllPost().then((page) =>{
         res.send(page)
     })
     
@@ -48,14 +61,14 @@ facebookRouter.route('/getFeed').get((req, res) => {
     
 // })
 
-facebookRouter.route('/addComment').get((req, res) => {
-    FacebookService.addComment()
-    res.send("done")
+// facebookRouter.route('/addComment').get((req, res) => {
+//     FacebookService.updateComment()
+//     res.send("done")
     
-})
+// })
 
-facebookRouter.route('/getAllComment').get((req, res) => {
-    FacebookService.getAllComment().then((page) =>{
+facebookRouter.route('/getComment').get((req, res) => {
+    FacebookService.getComment(req.query.postID).then((page) =>{
         res.send(page)
     })
     

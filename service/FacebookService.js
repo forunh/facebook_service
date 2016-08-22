@@ -21,15 +21,11 @@ export function getFbComment(postID){
 
     return new Promise((resolve) => {
         graph.get(postID+"/comments",(err,res) => {
-            console.log(comment)
             resolve(res)
         })
     })
 
 }
-
-
-
 
 export function getFbFeed(userID,since,until) {
 
@@ -45,42 +41,6 @@ export function getFbFeed(userID,since,until) {
      
 }
 
-
-
-let saveFbJob = new cronJob('* */30 * * * *', () => {
-    getAllPage().then((allPage) =>{
-
-        for(var page of allPage){
-            getFbFeed(page.pageID,since,until)
-            .then( feed => {
-
-                for(var data of feed.data){
-                    if(data.message){
-                        let post = {
-                            userID: data.id.substring(0,data.id.indexOf("_")),
-                            postID: data.id,
-                            message: data.message,
-                            postCreatedTime: data.created_time
-                        }
-                        db.facebookFeed.update({postID: data.id},post,{upsert:true},err => {
-                            if(err){
-                                console.log(err)
-                            }
-                        })
-                        
-                    }
-                }
-            })
-        }
-
-    })
-},
-() => {
-    console.log('saveFbJob has stopped')
-},
-    true
-)
-
 export function getAllPage(){
     
     return new Promise((resolve,reject) => {
@@ -95,10 +55,37 @@ export function getAllPage(){
     })
 }
 
-export function getAllComment(){
+export function getAllPost(){
+    
+    return new Promise((resolve,reject) => {
+        db.fbPost.find((err,docs)=>{
+            if(err){
+                reject(reject)
+            }
+            else{
+                resolve(docs)
+            }
+        })
+    })
+}
+export function getComment(postID){
     
     return new Promise((resolve,reject) => {
         db.fbComment.find((err,docs)=>{
+            if(err){
+                reject(reject)
+            }
+            else{
+                resolve(docs)
+            }
+        })
+    })
+}
+
+export function getFeed(userID){
+    
+    return new Promise((resolve,reject) => {
+        db.facebookFeed.find((err,docs)=>{
             if(err){
                 reject(reject)
             }
@@ -127,6 +114,17 @@ export function addPage(pageID){
               
     })  
 }
+export function addPost(postID){
+    let post ={
+        pageID: postID.substring(0,postID.indexOf("_")),
+        postID: postID
+    } 
+    db.fbPost.update({postID: postID},post,{upsert:true},err => {
+        if(err){
+            console.log(err)
+        }
+    })
+}
 
 export function deletePage(pageID){
     db.fbPage.remove(
@@ -137,32 +135,64 @@ export function deletePage(pageID){
     )
 }
 
-export function getFeed(userID){
-    
-    return new Promise((resolve,reject) => {
-        db.facebookFeed.find((err,docs)=>{
-            if(err){
-                reject(reject)
-            }
-            else{
-                resolve(docs)
-            }
-        })
-    })
-}
+export function addComment(postID){
 
-export function addComment(){
-
-    getFbComment("1749829098634111_1801452856805068")
+    getFbComment(postID)
     .then( comment => {
-        console.log(comment)
-        db.fbComment.update({postID: "123"},
-                            {postID: "123",comment: comment.data[0]},
+        db.fbComment.update({postID: postID},
+                            {postID: postID,comment: comment.data},
                             {upsert:true},
                             err => {
             if(err){
                 console.log(err)
             }
         })
+    })
+}
+
+let saveFbJob = new cronJob('* */2 * * * *', () => {
+   updateFeed()
+   updateComment()
+},
+() => {
+    console.log('saveFbJob has stopped')
+},
+    true
+)
+
+export function updateFeed(){
+ getAllPage().then((allPage) =>{
+
+        for(var page of allPage){
+            getFbFeed(page.pageID,since,until)
+            .then( feed => {
+
+                for(var data of feed.data){
+                    if(data.message){
+                        let post = {
+                            userID: data.id.substring(0,data.id.indexOf("_")),
+                            postID: data.id,
+                            message: data.message,
+                            postCreatedTime: data.created_time
+                        }
+                        db.facebookFeed.update({postID: data.id},post,{upsert:true},err => {
+                            if(err){
+                                console.log(err)
+                            }
+                        })
+                        
+                    }
+                }
+            })
+        }
+    })
+}
+
+export function updateComment(){
+    getAllPost().then((allPost) =>{
+
+        for(var post of allPost){
+            addComment(post.postID)
+        }
     })
 }
