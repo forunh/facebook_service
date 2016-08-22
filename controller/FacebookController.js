@@ -7,7 +7,7 @@ let facebookRouter = express.Router()
 
 
 facebookRouter.route('/').get((req, res) => {
-  res.send('<h1>Facebook Api</h1><ul><li>/addPage?pageID={pageID}</li><li>/getAllPage</li><li>/deletePage</li><li>/updateDB</li><li>/getFeed</li></ul>')
+  res.send('<h1>Facebook Api</h1><ul><li>/addPage?pageID={pageID}</li><li>/addPost?postID={postID}</li><li>/getAllPage</li><li>/getAllPost</li><li>/getFeed?pageID={pageID}</li><li>/getComment?postID={postID}</li><li>/deletePage?pageID={pageID}</li><li>/updateFeed</li><li>/updateComment</li></ul>')
 })
 
 facebookRouter.route('/addPage').get((req, res) => {
