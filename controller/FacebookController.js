@@ -41,18 +41,19 @@ facebookRouter.route('/getAllPost').get((req, res) => {
 facebookRouter.route('/deletePage').get((req, res) => {
     FacebookService.deletePage(req.query.pageID)
     res.send("Delete Page"+req.query.pageID)
-    
-    
 })
 
 facebookRouter.route('/getFeed').get((req, res) => {
-  
      FacebookService.getFeed(req.query.pageID)
      .then( (feeds) =>{
         res.send(feeds)
     })
+})
 
-   
+facebookRouter.route('/getComment').get((req, res) => {
+    FacebookService.getComment(req.query.postID).then((page) =>{
+        res.send(page)
+    })
 })
 
 facebookRouter.route('/updateFeed').get((req, res) => {
@@ -61,17 +62,12 @@ facebookRouter.route('/updateFeed').get((req, res) => {
     
 })
 
-// facebookRouter.route('/addComment').get((req, res) => {
-//     FacebookService.updateComment()
-//     res.send("done")
-    
-// })
-
-facebookRouter.route('/getComment').get((req, res) => {
-    FacebookService.getComment(req.query.postID).then((page) =>{
-        res.send(page)
-    })
+facebookRouter.route('/updateComment').get((req, res) => {
+    FacebookService.updateComment()
+    res.send("done")
     
 })
+
+
 
 export default facebookRouter

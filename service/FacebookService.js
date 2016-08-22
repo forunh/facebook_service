@@ -71,7 +71,7 @@ export function getAllPost(){
 export function getComment(postID){
     
     return new Promise((resolve,reject) => {
-        db.fbComment.find((err,docs)=>{
+        db.fbComment.find({postID: postID},(err,docs)=>{
             if(err){
                 reject(reject)
             }
@@ -85,7 +85,7 @@ export function getComment(postID){
 export function getFeed(userID){
     
     return new Promise((resolve,reject) => {
-        db.facebookFeed.find((err,docs)=>{
+        db.facebookFeed.find({userID: userID},(err,docs)=>{
             if(err){
                 reject(reject)
             }
@@ -151,7 +151,7 @@ export function addComment(postID){
 }
 
 export function addFeed(pageID){
-    getFbFeed(pageID,since,until)
+    getFbFeed(pageID)
     .then( feed => {
 
         for(var data of feed.data){
