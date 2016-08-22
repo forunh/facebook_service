@@ -55,11 +55,11 @@ facebookRouter.route('/getFeed').get((req, res) => {
    
 })
 
-// facebookRouter.route('/updateDB').get((req, res) => {
-//     FacebookService.updateDB(req.query.since,req.query.until)
-//     res.send("done")
+facebookRouter.route('/updateFeed').get((req, res) => {
+    FacebookService.updateFeed()
+    res.send("done")
     
-// })
+})
 
 // facebookRouter.route('/addComment').get((req, res) => {
 //     FacebookService.updateComment()

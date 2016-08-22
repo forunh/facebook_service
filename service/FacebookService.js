@@ -150,6 +150,29 @@ export function addComment(postID){
     })
 }
 
+export function addFeed(pageID){
+    getFbFeed(pageID,since,until)
+    .then( feed => {
+
+        for(var data of feed.data){
+            if(data.message){
+                let post = {
+                    userID: data.id.substring(0,data.id.indexOf("_")),
+                    postID: data.id,
+                    message: data.message,
+                    postCreatedTime: data.created_time
+                }
+                db.facebookFeed.update({postID: data.id},post,{upsert:true},err => {
+                    if(err){
+                        console.log(err)
+                    }
+                })
+                
+            }
+        }
+    })
+}
+
 let saveFbJob = new cronJob('* */2 * * * *', () => {
    updateFeed()
    updateComment()
@@ -164,26 +187,7 @@ export function updateFeed(){
  getAllPage().then((allPage) =>{
 
         for(var page of allPage){
-            getFbFeed(page.pageID,since,until)
-            .then( feed => {
-
-                for(var data of feed.data){
-                    if(data.message){
-                        let post = {
-                            userID: data.id.substring(0,data.id.indexOf("_")),
-                            postID: data.id,
-                            message: data.message,
-                            postCreatedTime: data.created_time
-                        }
-                        db.facebookFeed.update({postID: data.id},post,{upsert:true},err => {
-                            if(err){
-                                console.log(err)
-                            }
-                        })
-                        
-                    }
-                }
-            })
+            addFeed(page.pageID)
         }
     })
 }
