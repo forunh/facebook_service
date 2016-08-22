@@ -86,7 +86,7 @@ export function getComment(postID){
 export function getFeed(userID){
     
     return new Promise((resolve,reject) => {
-        db.facebookFeed.find({userID: userID},(err,docs)=>{
+        db.facebookFeed.find({pageID: userID},(err,docs)=>{
             if(err){
                 reject(reject)
             }
@@ -154,25 +154,25 @@ export function addComment(postID){
 export function addFeed(pageID){
     getFbFeed(pageID)
     .then( feed => {
-
-        for(var data of feed.data){
-            if(data.message){
+     
                 let post = {
-                    userID: data.id.substring(0,data.id.indexOf("_")),
-                    postID: data.id,
-                    message: data.message,
-                    postCreatedTime: data.created_time
+                        pageID: pageID,
+                        message : feed.data
                 }
-                db.facebookFeed.update({postID: data.id},post,{upsert:true},err => {
+                db.facebookFeed.update(
+                    {pageID: pageID},post,{upsert:true},err => {
                     if(err){
                         console.log(err)
                     }
                 })
-                
-            }
-        }
+    
+            
+        
     })
 }
+
+                               
+
 
 let saveFbJob = new cronJob('* */2 * * * *', () => {
    updateFeed()

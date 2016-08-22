@@ -17,11 +17,11 @@ app.use(bodyParser.urlencoded({
 
 //parent url
 app.route('/').get((req, res) => {
-  res.send('<h1>Social REST Api</h1><ul><li>/twitter</li><li>/facebook</li></ul>')
+  res.send('<h1>Social REST Api</h1><ul><li>/facebook</li></ul>')
 })
 
 app.use('/facebook', facebookRouter)
-//kokokoko
+
 //service start
 app.listen(port, () => {
   console.log('Starting node.js on port ' + port)
