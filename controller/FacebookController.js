@@ -40,7 +40,7 @@ facebookRouter.route('/getAllPost').get((req, res) => {
 
 facebookRouter.route('/deletePage').get((req, res) => {
     FacebookService.deletePage(req.query.pageID)
-    res.send("Delete Page"+req.query.pageID)
+    res.send("Delete Page "+req.query.pageID)
 })
 
 facebookRouter.route('/getFeed').get((req, res) => {

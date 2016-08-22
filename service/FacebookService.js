@@ -19,8 +19,9 @@ export function getFbDetail(userID) {
 
 export function getFbComment(postID){
 
+    let params = {summary : 1}
     return new Promise((resolve) => {
-        graph.get(postID+"/comments",(err,res) => {
+        graph.get(postID+"/comments",params,(err,res) => {
             resolve(res)
         })
     })
@@ -140,7 +141,7 @@ export function addComment(postID){
     getFbComment(postID)
     .then( comment => {
         db.fbComment.update({postID: postID},
-                            {postID: postID,comment: comment.data},
+                            {postID: postID,comment: comment.data,total: comment.summary.total_count},
                             {upsert:true},
                             err => {
             if(err){
