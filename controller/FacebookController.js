@@ -68,6 +68,12 @@ facebookRouter.route('/updateComment').get((req, res) => {
     
 })
 
+facebookRouter.route('/getLastedComment/kmids').get((req,res) =>{
+    FacebookService.getLastedComment("1749829098634111").then((lastComment) =>{
+        res.send(lastComment)        
+    })
+})
+
 
 
 export default facebookRouter

@@ -1,7 +1,7 @@
 import mongojs from 'mongojs'
 
 let databaseUrl = 'SocialData'
-let collections = ['facebookFeed','fbPage','fbPost','fbComment']
+let collections = ['fbFeed','fbPage','fbPost','fbComment']
 
 export const db = mongojs(databaseUrl, collections)
 

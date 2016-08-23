@@ -8,9 +8,9 @@ let cronJob = cron.CronJob
 
 
 export function getFbDetail(userID) {
-
+    var params = {fields: "name,picture"}    
     return new Promise((resolve) =>{
-        graph.get(userID, (err, res) => {
+        graph.get(userID,params, (err, res) => {
             resolve(res)
         })
     })
@@ -30,7 +30,7 @@ export function getFbComment(postID){
 
 export function getFbFeed(userID,since,until) {
 
-    var params = {fields: "",since: since,until: until}
+    var params = {fields: "message,created_time",since: since,until: until}
     
     return new Promise((resolve,reject) => {
 
@@ -86,7 +86,7 @@ export function getComment(postID){
 export function getFeed(userID){
     
     return new Promise((resolve,reject) => {
-        db.facebookFeed.find({pageID: userID},(err,docs)=>{
+        db.fbFeed.find({pageID: userID},(err,docs)=>{
             if(err){
                 reject(reject)
             }
@@ -141,10 +141,6 @@ export function addComment(postID){
     getFbComment(postID)
     .then( comments => {
         for(let comment of comments.data){
-            // comment = {
-            //     message: "Wow Fantastic!!!",
-            //     id: "1234"
-            // }
             db.fbComment.find({postID: postID},
                 {   
                     postID: postID,
@@ -155,18 +151,14 @@ export function addComment(postID){
                         }
                 }, 
                 (err,commentDBs) => {
-
-                    if(commentDBs.length == 0){
-                    
+                    if(commentDBs.length==0||!(commentDBs[0].hasOwnProperty('comment'))){
+                      
                         db.fbComment.update({postID: postID},
                                             {   
                                                 $push:
                                                     {
                                                         'comment': comment
-                                                    },
-                                                $set:{
-                                                    total: comments.summary.total_count,                                                
-                                                }
+                                                    }
                                                     
                                             },
                                             {upsert:true},
@@ -176,6 +168,7 @@ export function addComment(postID){
                             }
                         })  
                         
+                    
                 }
                 if(err){
                         console.log(err)                   
@@ -191,26 +184,50 @@ export function addFeed(pageID){
     getFbFeed(pageID)
     .then( feed => {
      
-                let post = {
-                        pageID: pageID,
-                        message : feed.data
-                }
-                db.facebookFeed.update(
-                    {pageID: pageID},post,{upsert:true},err => {
-                    if(err){
-                        console.log(err)
-                    }
-                })
-    
-            
-        
+        let post = {
+                pageID: pageID,
+                feed : feed.data
+        }
+        db.fbFeed.update(
+            {pageID: pageID},post,{upsert:true},err => {
+            if(err){
+                console.log(err)
+            }
+        })
     })
 }
 
-                               
+export function getLastedComment(pageID){
+    return new Promise((resolve,reject) => {
+     
+        db.fbComment.aggregate(
+            {
+                 $match: {
+                     postID:"1749829098634111_1801452856805068"
+                 }
+            },
+            {   $unwind: '$comment'},
+            {
+                $sort: {'comment.created_time': -1}
+            })
+        .limit(1
+        ,(err,lastComment) =>{
+           getFbDetail(lastComment[0].comment.from.id).then(user =>{
+                let returnValue ={
+                    picture: user.picture.data.url,
+                    name: user.name,
+                    comment: lastComment[0].comment.message,
+                    created_time: lastComment[0].comment.created_time
+                }
+                resolve(returnValue)
+            })
+            
+        })
+    })
+}                               
 
 
-let saveFbJob = new cronJob('* */30 * * * *', () => {
+let saveFbJob = new cronJob('* */2 * * * *', () => {
    updateFeed()
    updateComment()
 },
