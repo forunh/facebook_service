@@ -139,15 +139,47 @@ export function deletePage(pageID){
 export function addComment(postID){
 
     getFbComment(postID)
-    .then( comment => {
-        db.fbComment.update({postID: postID},
-                            {postID: postID,comment: comment.data,total: comment.summary.total_count},
-                            {upsert:true},
-                            err => {
-            if(err){
-                console.log(err)
-            }
-        })
+    .then( comments => {
+        //let comment = comments.data[0]
+        for(let comment of comments.data){
+            // comment = {
+            //     message: "Wow Fantastic!!!",
+            //     id: "1234"
+            // }
+            db.fbComment.find({postID: postID},
+                {   
+                    postID: postID,
+                        comment:{
+                            $elemMatch: {
+                                id: comment.id
+                            }
+                        }
+                }, 
+                (err,commentDBs) => {
+                if(commentDBs.length == 0){
+                
+                    db.fbComment.update({postID: postID},
+                                        {   $push:
+                                                {
+                                                    'comment': comment
+                                                },
+                                            // total: comments.summary.total_count  
+                                        },
+                                        {upsert:true},
+                                        err => {
+                        if(err){
+                            console.log(err)
+                        }
+                    })  
+                    
+               }
+               if(err){
+                    console.log(err)                   
+               }
+            })
+
+        
+        }
     })
 }
 
@@ -174,7 +206,7 @@ export function addFeed(pageID){
                                
 
 
-let saveFbJob = new cronJob('* */2 * * * *', () => {
+let saveFbJob = new cronJob('* */30 * * * *', () => {
    updateFeed()
    updateComment()
 },
