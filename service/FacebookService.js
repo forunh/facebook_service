@@ -140,7 +140,6 @@ export function addComment(postID){
 
     getFbComment(postID)
     .then( comments => {
-        //let comment = comments.data[0]
         for(let comment of comments.data){
             // comment = {
             //     message: "Wow Fantastic!!!",
@@ -156,26 +155,31 @@ export function addComment(postID){
                         }
                 }, 
                 (err,commentDBs) => {
-                if(commentDBs.length == 0){
-                
-                    db.fbComment.update({postID: postID},
-                                        {   $push:
-                                                {
-                                                    'comment': comment
-                                                },
-                                            // total: comments.summary.total_count  
-                                        },
-                                        {upsert:true},
-                                        err => {
-                        if(err){
-                            console.log(err)
-                        }
-                    })  
+
+                    if(commentDBs.length == 0){
                     
-               }
-               if(err){
-                    console.log(err)                   
-               }
+                        db.fbComment.update({postID: postID},
+                                            {   
+                                                $push:
+                                                    {
+                                                        'comment': comment
+                                                    },
+                                                $set:{
+                                                    total: comments.summary.total_count,                                                
+                                                }
+                                                    
+                                            },
+                                            {upsert:true},
+                                            err => {
+                            if(err){
+                                console.log(err)
+                            }
+                        })  
+                        
+                }
+                if(err){
+                        console.log(err)                   
+                }
             })
 
         
