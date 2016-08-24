@@ -30,7 +30,7 @@ export function getFbComment(postID){
 
 export function getFbFeed(userID,since,until) {
 
-    var params = {fields: "message,created_time",since: since,until: until}
+    var params = {fields: "message,created_time",since: "2016-08-01",limit: 100}
     
     return new Promise((resolve,reject) => {
 
@@ -69,10 +69,10 @@ export function getAllPost(){
         })
     })
 }
-export function getComment(postID){
+export function getComment(pageID){
     
     return new Promise((resolve,reject) => {
-        db.fbComment.find({postID: postID},(err,docs)=>{
+        db.fbComment.find({pageID: pageID},(err,docs)=>{
             if(err){
                 reject(reject)
             }
@@ -87,6 +87,20 @@ export function getFeed(userID){
     
     return new Promise((resolve,reject) => {
         db.fbFeed.find({pageID: userID},(err,docs)=>{
+            if(err){
+                reject(reject)
+            }
+            else{
+                resolve(docs)
+            }
+        })
+    })
+}
+
+export function getAllFeed(){
+    
+    return new Promise((resolve,reject) => {
+        db.fbFeed.find({},(err,docs)=>{
             if(err){
                 reject(reject)
             }
@@ -138,26 +152,41 @@ export function deletePage(pageID){
 
 export function addComment(postID){
 
+    let pageID = postID.substring(0,postID.indexOf("_"))     
     getFbComment(postID)
     .then( comments => {
         for(let comment of comments.data){
             db.fbComment.find({postID: postID},
                 {   
-                    postID: postID,
+                    pageID: pageID,
                         comment:{
                             $elemMatch: {
+                                postID: postID,
                                 id: comment.id
                             }
                         }
                 }, 
                 (err,commentDBs) => {
+                    
                     if(commentDBs.length==0||!(commentDBs[0].hasOwnProperty('comment'))){
                       
-                        db.fbComment.update({postID: postID},
+                        db.fbComment.update({pageID: pageID},
                                             {   
+                                                $set:{
+                                                    pageID: pageID
+                                                },
                                                 $push:
                                                     {
-                                                        'comment': comment
+                                                         'comment': {
+                                                            postID: postID,
+                                                            created_time: comment.created_time,
+                                                            from: {
+                                                                name: comment.from.name,
+                                                                id: comment.from.id
+                                                            },
+                                                            message: comment.message,
+                                                            id: comment.id
+                                                        }
                                                     }
                                                     
                                             },
@@ -203,7 +232,7 @@ export function getLastedComment(pageID){
         db.fbComment.aggregate(
             {
                  $match: {
-                     postID:"1749829098634111_1801452856805068"
+                     pageID: pageID
                  }
             },
             {   $unwind: '$comment'},
@@ -247,10 +276,14 @@ export function updateFeed(){
 }
 
 export function updateComment(){
-    getAllPost().then((allPost) =>{
+    getAllFeed().then((allFeed) =>{
 
-        for(var post of allPost){
-            addComment(post.postID)
+        for(var feed of allFeed){
+            
+            for(var message of feed.feed){
+                addComment(message.id)
+            }
+            
         }
     })
 }

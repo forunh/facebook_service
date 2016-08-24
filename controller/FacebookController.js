@@ -34,7 +34,7 @@ facebookRouter.route('/getAllPage').get((req, res) => {
 facebookRouter.route('/getAllPost').get((req, res) => {
     FacebookService.getAllPost().then((page) =>{
         res.send(page)
-    })
+   })
     
 })
 
@@ -51,7 +51,7 @@ facebookRouter.route('/getFeed').get((req, res) => {
 })
 
 facebookRouter.route('/getComment').get((req, res) => {
-    FacebookService.getComment(req.query.postID).then((page) =>{
+    FacebookService.getComment(req.query.pageID).then((page) =>{
         res.send(page)
     })
 })
@@ -68,12 +68,16 @@ facebookRouter.route('/updateComment').get((req, res) => {
     
 })
 
-facebookRouter.route('/getLastedComment/kmids').get((req,res) =>{
+facebookRouter.route('/getLatestComment/kmids').get((req,res) =>{
     FacebookService.getLastedComment("1749829098634111").then((lastComment) =>{
         res.send(lastComment)        
     })
 })
 
-
+facebookRouter.route('/getLatestComment/engineer').get((req,res) =>{
+    FacebookService.getLastedComment("157556534255462").then((lastComment) =>{
+        res.send(lastComment)        
+    })
+})
 
 export default facebookRouter
