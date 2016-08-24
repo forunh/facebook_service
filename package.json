@@ -1,5 +1,5 @@
 {
-  "name": "social_rest_api",
+  "name": "facebook_service",
   "version": "1.0.0",
   "description": "",
   "main": "routes.js",
