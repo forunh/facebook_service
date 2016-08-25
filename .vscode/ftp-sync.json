@@ -1,13 +1,13 @@
 {
     "remotePath": "/usr/local/nodejs/facebook_service",
     "host": "203.151.85.73",
-    "username": "sakonwan",
+    "username": "pittayarat",
     "port": 22,
-    "protocol": "ftp",
+    "protocol": "sftp",
     "uploadOnSave": true,
     "passive": false,
     "debug": false,
-    "privateKeyPath": "D:/Senior/Project1/private.ppk",
+    "privateKeyPath": "C:/PublicKey/first_time_private.ppk",
     "ignore": [
         "\\.vscode",
         "\\.git"

@@ -287,25 +287,3 @@ export function updateComment(){
         }
     })
 }
-
-export function getCountComment(){
-
-        return new Promise((resolve,reject) => {  
-            db.fbComment.aggregate(
-            [
-                {$match: {pageID : "1749829098634111"}},
-                {
-                    $project: {
-                        comments_count: {$size: "$comment"}
-                    }
-                }
-            ]
-            ,(res)=> {
-                console.log(res)
-                resolve(res)
-
-            })
-        })
-
-}
-
