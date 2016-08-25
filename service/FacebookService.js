@@ -256,9 +256,10 @@ export function getLastedComment(pageID){
 }                               
 
 
-let saveFbJob = new cronJob('* */2 * * * *', () => {
+let saveFbJob = new cronJob('0 */2 * * * *', () => {
    updateFeed()
    updateComment()
+   console.log('update')
 },
 () => {
     console.log('saveFbJob has stopped')
