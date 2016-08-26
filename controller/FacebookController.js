@@ -56,6 +56,13 @@ facebookRouter.route('/getComment').get((req, res) => {
     })
 })
 
+facebookRouter.route('/getCount').get((req, res) => {
+    FacebookService.getCount().then((page) =>{
+        res.send(page)
+    })
+})
+
+
 facebookRouter.route('/updateFeed').get((req, res) => {
     FacebookService.updateFeed()
     res.send("done")
