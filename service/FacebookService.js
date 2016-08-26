@@ -256,7 +256,7 @@ export function getLastedComment(pageID){
 }                               
 
 
-let saveFbJob = new cronJob('* */2 * * * *', () => {
+let saveFbJob = new cronJob('0 */2 * * * *', () => {
    updateFeed()
    updateComment()
 },
@@ -292,20 +292,54 @@ export function getCountComment(){
 
         return new Promise((resolve,reject) => {  
             db.fbComment.aggregate(
-            [
-                {$match: {pageID : "1749829098634111"}},
                 {
                     $project: {
                         comments_count: {$size: "$comment"}
                     }
                 }
-            ]
-            ,(res)=> {
-                console.log(res)
-                resolve(res)
+            ,(err,res)=> {
+                let sum =0
+                for(var comment of res){
+                    sum = sum+comment.comments_count
+                }
+                resolve(sum)
 
             })
         })
 
 }
+
+export function getCountFeed(){
+
+        return new Promise((resolve,reject) => {  
+            db.fbFeed.aggregate(
+                {
+                    $project: {
+                        feeds_count: {$size: "$feed"}
+                    }
+                }
+            ,(err,res)=> {
+                let sum =0
+                for(var feed of res){
+                    sum = sum+feed.feeds_count
+                }
+                resolve(sum)
+
+            })
+        })
+}
+
+export function getCount(){
+
+        return new Promise((resolve,reject) => {  
+            getCountFeed().then((feed_count) =>{
+                let sum = feed_count
+                getCountComment().then((comment_count) =>{
+                    sum = sum+comment_count
+                    resolve(sum.toString())
+                })
+            })
+        })
+}
+
 
