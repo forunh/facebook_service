@@ -74,13 +74,22 @@ facebookRouter.route('/updateComment').get((req, res) => {
     res.send("done")
     
 })
+facebookRouter.route('/updateTop').get((req, res) => {
+    FacebookService.updateTopThree()
+    res.send("done")
+    
+})
 
 facebookRouter.route('/getLatestComment/kmids').get((req,res) =>{
     FacebookService.getLastedComment("1749829098634111").then((lastComment) =>{
         res.send(lastComment)        
     })
 })
-
+facebookRouter.route('/getLastThreeComment/kmids').get((req,res) =>{
+    FacebookService.getTopThree("1749829098634111").then((lastComment) =>{
+        res.send(lastComment)        
+    })
+})
 facebookRouter.route('/getLatestComment/engineer').get((req,res) =>{
     FacebookService.getLastedComment("157556534255462").then((lastComment) =>{
         res.send(lastComment)        

@@ -3,12 +3,12 @@
 import express from 'express'
 import bodyParser from 'body-parser'
 import facebookRouter from './controller/FacebookController'
-
+import cors from 'cors'
 
 const port = process.env.port || 8880
 let app = express()
 
-
+app.use(cors())
 // parse application/json
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({
