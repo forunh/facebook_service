@@ -282,19 +282,19 @@ export function getLastedComment(pageID){
 }                               
 
 
-// let saveFbJob = new cronJob('0 */1 * * * *', () => {
-//    console.log('update')   
-//    updateFeed()
-//        updateComment()
-//         //    updateTopThree()
+let saveFbJob = new cronJob('0 */1 * * * *', () => {
+   console.log('update')   
+   updateFeed()
+       updateComment()
+        //    updateTopThree()
        
    
-// },
-// () => {
-//     console.log('saveFbJob has stopped')
-// },
-//     true
-// )
+},
+() => {
+    console.log('saveFbJob has stopped')
+},
+    true
+)
 
 export function updateFeed(){
  getAllPage().then((allPage) =>{
